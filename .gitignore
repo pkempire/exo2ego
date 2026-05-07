@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+data/inputs/*
+data/outputs/*
+data/annotations/*
+!data/inputs/.gitkeep
+!data/outputs/.gitkeep
+!data/annotations/.gitkeep
+.DS_Store
+.hermes/
+*.pth
+*.onnx
+checkpoints/

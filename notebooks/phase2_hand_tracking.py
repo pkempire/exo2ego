@@ -6,7 +6,9 @@
 # ============================================================
 
 # ---------- CELL 1: Install dependencies ----------
-!pip install -q mediapipe opencv-python pillow matplotlib numpy torch torchvision transformers
+# NOTE: After this cell, restart runtime (Runtime → Restart runtime)
+# Then continue from Cell 2. MediaPipe needs restart to load C extension.
+!pip install mediapipe==0.10.14 opencv-python pillow matplotlib numpy torch torchvision transformers
 
 # ---------- CELL 2: Imports ----------
 import cv2

@@ -9,6 +9,7 @@
 # NOTE: After this cell, restart runtime (Runtime → Restart runtime)
 # Then continue from Cell 2. MediaPipe needs restart to load C extension.
 !pip install mediapipe==0.10.14 opencv-python pillow matplotlib numpy torch torchvision transformers
+!pip install protobuf==3.20.3
 
 # ---------- CELL 2: Imports ----------
 import cv2

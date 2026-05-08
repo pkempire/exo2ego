@@ -21,9 +21,9 @@ if not JSON_PATH:
     print("Usage: python3 phase3_reproject.py phase2_output.json")
     sys.exit(1)
 
-HEAD_OFFSET_Y = 0.25   # head is ~25cm above wrist (in meters)
-HEAD_OFFSET_Z = 0.15   # head is ~15cm behind wrist
-EGO_FOV_DEG = 90       # wide FOV for ego camera
+HEAD_OFFSET_Y = 0.30   # head is ~30cm above wrist (in meters)
+HEAD_OFFSET_Z = -0.20  # head is ~20cm CLOSER to camera than extended wrist
+EGO_FOV_DEG = 110       # wider FOV — human vision is ~180° horizontal
 EGO_IMG_W, EGO_IMG_H = 640, 480
 
 # --- LOAD PHASE 2 DATA ---
@@ -98,11 +98,14 @@ print(f"  Ego camera 3D: X={ego_center[0]:.3f}, Y={ego_center[1]:.3f}, Z={ego_ce
 # ================================================================
 print("Transforming to ego frame...")
 
-# Exo → Ego transform: translate by -ego_center, then rotate 180° around Y
-# (ego camera looks backward at the person)
-R_ego = np.array([[-1, 0, 0],   # flip X (left-right)
-                   [0, 1, 0],    # keep Y
-                   [0, 0, -1]],  # flip Z (look backward)
+# Exo → Ego transform: translate by -ego_center
+# Ego camera faces FORWARD (same direction as person looking at their task)
+# Small downward pitch to look at hands
+import math
+pitch = math.radians(-15)  # look down 15° (at hands)
+R_ego = np.array([[1, 0, 0],                          # keep X
+                   [0, np.cos(pitch), -np.sin(pitch)], # pitch down
+                   [0, np.sin(pitch), np.cos(pitch)]], # 
                   dtype=np.float32)
 
 # Translate to ego origin

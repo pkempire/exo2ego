@@ -109,7 +109,7 @@ plt.savefig(out_img, dpi=150, bbox_inches="tight")
 print(f"Saved: {out_img}")
 
 # --- SAVE DATA ---
-out = {"image_shape": list(rgb.shape), "depth_map": depth_map.tolist(), "hands": []}
+out = {"image_shape": list(rgb.shape), "rgb": rgb.tolist(), "depth_map": depth_map.tolist(), "hands": []}
 for hand in hands_3d:
     out["hands"].append({
         "handedness": hand["handedness"],

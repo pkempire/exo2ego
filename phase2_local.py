@@ -37,7 +37,9 @@ print(f"Image: {rgb.shape}")
 
 # --- DEPTH ---
 result = pipe(image)
-depth_map = np.array(result["depth"]).astype(np.float32)
+# Depth Anything V2-Small: use predicted_depth tensor, not the PIL image
+predicted_depth = result["predicted_depth"].detach().cpu().numpy() if hasattr(result["predicted_depth"], 'detach') else np.array(result["predicted_depth"])
+depth_map = predicted_depth.astype(np.float32) if predicted_depth.ndim == 2 else predicted_depth.squeeze()
 print(f"Depth: {depth_map.shape}, range [{depth_map.min():.2f}, {depth_map.max():.2f}]")
 
 # --- HANDS ---
@@ -111,10 +113,10 @@ out = {"image_shape": list(rgb.shape), "depth_map": depth_map.tolist(), "hands":
 for hand in hands_3d:
     out["hands"].append({
         "handedness": hand["handedness"],
-        "wrist_pixel": [hand["wrist"]["px"], hand["wrist"]["py"]],
-        "wrist_depth_m": hand["wrist"]["depth_m"],
+        "wrist_pixel": [int(hand["wrist"]["px"]), int(hand["wrist"]["py"])],
+        "wrist_depth_m": float(hand["wrist"]["depth_m"]),
         "object_pixel_count": int(hand["object_mask"].sum()),
-        "object_mean_depth": float(depth_map[hand["object_mask"]].mean()) if hand["object_mask"].sum() > 0 else 0
+        "object_mean_depth": float(depth_map[hand["object_mask"]].mean()) if hand["object_mask"].sum() > 0 else 0.0
     })
 
 json_path = IMAGE_PATH.rsplit(".",1)[0] + "_phase2.json"

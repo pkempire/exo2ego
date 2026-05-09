@@ -16,9 +16,13 @@ import torch
 IMAGE_PATH = sys.argv[1] if len(sys.argv) > 1 else None
 
 # --- LOAD MODELS ---
-print("Loading Depth Anything V2...")
+# Depth Anything V2-Base: produces METRIC depth, not relative
+# Small model: relative depth (arbitrary units) — USELESS for reprojection
+# Base model: metric depth — WHAT WE NEED
+MODEL = "depth-anything/Depth-Anything-V2-Base-hf"
+print(f"Loading {MODEL} (metric depth)...")
 device = 0 if torch.cuda.is_available() else (-1 if not torch.backends.mps.is_available() else "mps")
-pipe = pipeline("depth-estimation", model="depth-anything/Depth-Anything-V2-Small-hf", device=device)
+pipe = pipeline("depth-estimation", model=MODEL, device=device)
 
 mp_hands = mp.solutions.hands
 mp_draw = mp.solutions.drawing_utils

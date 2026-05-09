@@ -21,9 +21,9 @@ if not JSON_PATH:
     print("Usage: python3 phase3_reproject.py phase2_output.json")
     sys.exit(1)
 
-HEAD_OFFSET_Y = 0.30   # head is ~30cm above wrist (in meters)
-HEAD_OFFSET_Z = -0.20  # head is ~20cm CLOSER to camera than extended wrist
-EGO_FOV_DEG = 110       # wider FOV — human vision is ~180° horizontal
+HEAD_OFFSET_Y = 0.30   # head is ~30cm above wrist
+HEAD_OFFSET_Z = 0.15   # head is BEHIND wrist (further from exo camera)
+EGO_FOV_DEG = 110       # wide FOV
 EGO_IMG_W, EGO_IMG_H = 640, 480
 
 # --- LOAD PHASE 2 DATA ---
@@ -113,6 +113,17 @@ pc_ego = point_cloud - ego_center  # (H, W, 3)
 
 # Apply rotation
 pc_ego = pc_ego @ R_ego.T  # (H, W, 3) @ (3, 3) → (H, W, 3)
+
+# DEBUG: print what happened
+Xe_masked = pc_ego[valid, 0]
+Ye_masked = pc_ego[valid, 1]
+Ze_masked = pc_ego[valid, 2]
+print(f"  Point cloud in ego frame:")
+print(f"    X: [{Xe_masked.min():.2f}, {Xe_masked.max():.2f}]")
+print(f"    Y: [{Ye_masked.min():.2f}, {Ye_masked.max():.2f}]")
+print(f"    Z: [{Ze_masked.min():.2f}, {Ze_masked.max():.2f}]")
+in_front = (Ze_masked > 0.1).sum()
+print(f"    Points in front of ego camera (Z>0): {in_front:,} ({100*in_front/len(Ze_masked):.1f}%)")
 
 # ================================================================
 # STEP 4: PROJECT TO EGO IMAGE

@@ -1,67 +1,71 @@
-# Exo2Ego — Third-Person to Egocentric View Synthesis for Robot Training Data
+# EgoJudge — Exo-to-Ego Generation with a Constraint Judge
 
-> CMSC498E Robotics Final Project — Spring 2026  
-> Parth Kocheta | Prof. Dinesh Manocha
+> CMSC498E Robotics Final Project, Spring 2026  
+> Parth Kocheta · University of Maryland · Prof. Dinesh Manocha
 
-## Problem
-
-Vision-Language-Action (VLA) models for robotics need egocentric (first-person) training data. Physical Intelligence runs ~100 teleoperators 24/7 to collect this data. Third-person video is abundant (surveillance, YouTube, how-to clips) but can't be used directly due to the viewpoint gap.
-
-## Approach
-
-A modular perception pipeline that converts third-person video into robot-ready egocentric data:
-
-**Exo video → Structure from Motion → Depth → Segmentation → Pose → Reprojection → Diffusion cleanup → Annotated ego frames**
-
-We use **human-comprehensible features** (segments, poses, depth) with physical constraints, not end-to-end hallucination. Each stage uses pretrained SOTA models composed together — we are the glue, not the model trainer.
+EgoJudge is a generate-then-judge pipeline for converting third-person manipulation frames into candidate egocentric frames. The core idea is simple: generate several plausible first-person views, then reject the ones that violate explicit physical constraints such as object identity, hand-object contact, first-person viewpoint, arm continuity, and left/right layout.
 
 ## Pipeline
 
-| Stage | Component | Candidate Models |
-|-------|-----------|-----------------|
-| 1. Scene Geometry | Depth estimation + camera pose | Depth Anything v2, UniDepth, COLMAP |
-| 2. Segmentation | Object + hand + person masks | SAM 3, Grounded-SAM, E2FG |
-| 3. Pose Estimation | Hand + object 6-DoF keypoints | HaMeR, ZooPose, FoundationPose |
-| 4. Reprojection | Physically-grounded view transform | Custom (OpenCV + EKFs) |
-| 5. Diffusion Cleanup | Photorealistic frame completion | Exo2Ego-V, Stable Video Diffusion |
-| 6. Annotation | Auto-label output frames | Depth, seg, keypoints, captions |
+| Step | Script | What it does |
+|---|---|---|
+| Sync paired captures | `scripts/sync/take3_audio_sync_and_extract.py` | Refines clap markers and extracts aligned frames |
+| Detect exo objects | `scripts/perception/detect_hosted_hf.py` | Grounding-DINO open-vocabulary boxes |
+| Build scene graph | `scripts/perception/vlm_scene_graph.py` | Structured objects, workspace, and spatial constraints |
+| Generate ego candidate | `scripts/generation/egojudge_openai.py` | Image-edit generation from exo frame + prompt |
+| Judge constraints | `scripts/eval/egojudge_constraints.py` | Per-constraint pass/fail/uncertain with visual evidence |
+| Orchestrate one frame | `scripts/orchestration/run_pipeline.py` | Runs detection, prompt, generation/eval plumbing, and panels |
 
-## Key References
+## Run One Frame
 
-- **Ego-Exo4D** (Grauman et al., 2024) — largest paired ego+exo dataset
-- **π0 / π0.5** (Physical Intelligence, 2025) — VLA models needing ego data
-- **Exo2Ego-V** (Liu et al., NeurIPS 2024) — diffusion exo→ego translation
-- **VideoMimic** (UC Berkeley, 2025) — real-to-sim-to-real from internet video
-- **PhysBrain** (PI, 2025) — egocentric→embodiment translation pipeline
-- **SceneComplete** (Agarwal et al., 2024) — composing pretrained perception for manipulation
-- **CSCPR** (Liang & Manocha, 2025) — cross-source RGB-D place recognition
-
-## Repo Structure
-
+```bash
+python3 scripts/orchestration/run_pipeline.py \
+  --exo experiments/new_upload_sync/take3/frames/exo/exo_005_145.325.jpg \
+  --ego experiments/new_upload_sync/take3/generated/gen_005.png \
+  --prompt experiments/new_upload_sync/take3/auto_prompt_005/prompt_conditioned_vlm.txt \
+  --out experiments/new_upload_sync/take3/runs/exo_005
 ```
-exo2ego/
-├── src/
-│   ├── perception/    # SAM, depth, pose estimation wrappers
-│   ├── geometry/      # Camera model, reprojection, SfM
-│   ├── generation/    # Diffusion cleanup, frame synthesis
-│   └── eval/          # Metrics, visualization, benchmarks
-├── data/
-│   ├── inputs/        # Sample third-person videos
-│   ├── outputs/       # Generated egocentric frames
-│   └── annotations/   # Depth maps, seg masks, keypoints
-├── notebooks/         # Exploration and demos
-├── paper/             # Final report + outline
-├── docs/              # Architecture, research notes
-└── tests/             # Pipeline tests
+
+Useful flags:
+
+```bash
+--skip-judge   # no API judge call
+--skip-detect  # reuse existing detections
+--skip-viz3d   # skip point-cloud visualization
+--force        # recompute existing outputs
+```
+
+## Eval Tools
+
+```bash
+python3 scripts/eval/egojudge_constraints.py ...
+python3 scripts/eval/build_constraint_scorecard.py ...
+python3 scripts/eval/temporal_consistency.py ...
+python3 scripts/viz/visualize_pointcloud_reprojection.py ...
+```
+
+The repo keeps source code, prompt templates, and reproducible eval plumbing in git. Raw videos, generated experiments, model weights, and the writeup PDF/LaTeX are local-only.
+
+## Repo Layout
+
+```text
+scripts/
+  orchestration/   one-frame runners and panel builders
+  perception/      detection, masks, wearer pose, scene graphs
+  generation/      image generation and candidate variants
+  eval/            constraint judge, metrics, temporal consistency, scorecards
+  viz/             point-cloud and contact-sheet visualizations
+  sync/            audio sync and visual sync sheets
+  datasets/        dataset-specific frame extraction helpers
+  baselines/       geometry and mask-conditioned baselines
+  old/             superseded report/render helpers kept for reproducibility
+prompts/           reusable prompt templates
+docs/              public lightweight notes
 ```
 
 ## Setup
 
 ```bash
 pip install -r requirements.txt
-# Individual model setup in src/*/README.md
+# optional: add OPENAI_API_KEY and HF_TOKEN to .env
 ```
-
-## Status
-
-Pre-alpha. Pipeline research and component selection in progress.

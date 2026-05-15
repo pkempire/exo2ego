@@ -3,14 +3,99 @@ __pycache__/
 .env
 .venv/
 venv/
+.DS_Store
+.hermes/
+
+# Keep the report/private writeup local. The repo is for code, configs, and
+# reproducible eval plumbing; paper artifacts live outside git.
+paper/
+
+# Raw/local media and generated experiment outputs.
+*.MP4
+*.mp4
+*.MOV
+*.mov
+*.m4v
+*.avi
+*.wav
+*.m4a
+*.zip
+data/own_capture/
+data/egoexo4d/
+experiments/
+external/
+models/
+label_split/
+object/
+
+# Large model artifacts.
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.safetensors
+checkpoints/
+
 data/inputs/*
 data/outputs/*
 data/annotations/*
 !data/inputs/.gitkeep
 !data/outputs/.gitkeep
 !data/annotations/.gitkeep
-.DS_Store
-.hermes/
-*.pth
-*.onnx
-checkpoints/
+
+# heavy plotly HTML files (regeneratable via scripts/viz_3d_reprojection.py)
+*pointcloud_3d.html
+
+# LaTeX intermediate
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/report_page*.png
+egojudge_latex/
+report copy.pdf
+
+# Internal working notes / abandoned approach docs — not for the public repo
+docs/.DS_Store
+docs/ARCHITECTURE.md
+docs/BUILD_PLAN.md
+docs/LITERATURE_REVIEW.md
+docs/PIPELINE_RESEARCH.md
+docs/pipeline-diagram.html
+docs/PLAN_TODAY.md
+docs/RESEARCH_QUESTIONS.md
+docs/SUBMISSION_REVIEW.md
+docs/CODE_AUDIT.md
+docs/DATASET_FIT_NOTES.md
+docs/PROJECT_SPEC.md
+docs/SMALL_PAIRED_DATA_OPTIONS.md
+docs/H2O_QUICKSTART.md
+docs/EGOJUDGE.md
+docs/FINAL_PIPELINE_STEP_BY_STEP.md
+docs/TAKE3_SYNC_NOTES.md
+docs/papers/
+
+# Old AI-generated drafts kept locally for reference only
+paper/codex_*.pdf
+paper/report_rich_base.pdf
+paper/submission_front_matter.pdf
+
+# Scratch report figures generated while exploring layouts, not referenced by
+# the current report source.
+paper/figures/eval_in_action.png
+paper/figures/geometry_pipeline_steps.png
+paper/figures/geometry_steps_*.png
+paper/figures/take1_book_stacking_5up.png
+scripts/viz/build_geometry_step_figure.py
+
+# Local prototype data and one-off uploaded frames
+data/inputs/
+data/outputs/
+data/annotations/
+
+# Stray root-level files from older experiments
+phase3_tabletop_ego.py
+test_exo_behind.jpg
+notebooks/
+
+# Internal helper email — not public
+email_to_prof_and_tas.md

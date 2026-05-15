@@ -1,0 +1,17 @@
+Convert this exocentric frame into a realistic raw first-person head-mounted camera image from the same wearer at the same moment.
+
+Action phase:
+This frame is in the move/swap action phase. The ghee jar and the white salt container are being actively moved across the small round table. Preserve the phase exactly: the hands should be manipulating the ghee/salt, not already finished, not resting, and not clapping.
+
+Hard constraints:
+- Use the full source image as evidence.
+- Preserve the ghee jar, the white salt container, the black/orange book, and the round wooden table.
+- Preserve the layout: in the generated ego image, the ghee jar must be to the right of the white salt container.
+- The black/orange book should remain on the far/right side of the table, not disappear.
+- Hands must be physically attached to continuous forearms entering from the lower/side edge. No floating hands.
+- Preserve contact: hands should touch the currently manipulated object(s).
+- Preserve the room, couch/chairs/window, and lighting as a raw camera frame, not a polished stock photo.
+- No extra hands, no extra people, no impossible detached limbs.
+
+Style:
+Raw egocentric camera frame. Natural motion blur is acceptable. Do not make an illustration, marketing render, overhead shot, or third-person camera view.
